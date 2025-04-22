@@ -1,0 +1,28 @@
+name: Build Padavan Firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y git build-essential gperf python3 unzip ccache libncurses5-dev zlib1g-dev libssl-dev gettext xsltproc libxml-parser-perl
+
+    - name: Clone Padavan toolchain and source
+      run: |
+        git clone https://github.com/hanwckf/rt-n56u.git padavan
+        cd padavan/toolchain-mipsel
+        ./dl_toolchain.sh
+
+    - name: Build firmware for RT-N56U
+      run: |
+        cd padavan/trunk
+        fakeroot ./build_firmware_modify rt-n56u
