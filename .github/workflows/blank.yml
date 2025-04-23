@@ -57,3 +57,8 @@ jobs:
       with:
         name: firmware
         path: padavan/trunk/images/*.trx
+- name: Upload firmware
+      uses: actions/upload-artifact@v3
+      with:
+        name: padavan-firmware
+        path: padavan/trunk/images/*.trx
