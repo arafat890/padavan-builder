@@ -57,8 +57,19 @@ jobs:
       with:
         name: firmware
         path: padavan/trunk/images/*.trx
-- name: Upload firmware
-      uses: actions/upload-artifact@v3
-      with:
-        name: padavan-firmware
-        path: padavan/trunk/images/*.trx
+
+  jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # ... আগের স্টেপগুলো
+      - name: Build firmware
+        run: |
+          cd padavan/trunk
+          fakeroot ./build_firmware.sh RT-N56U
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v3
+        with:
+          name: padavan-firmware
+          path: padavan/trunk/images/*.trx
