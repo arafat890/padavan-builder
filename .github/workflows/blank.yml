@@ -8,61 +8,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Setup dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y git wget curl unzip cmake gcc g++ make libtool-bin gperf cpio texinfo help2man
+      - name: Setup dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git wget curl unzip gcc g++ cmake fakeroot libtool libtool-bin gperf gawk flex bison nano xxd \
+            autoconf automake libncurses5-dev libncursesw5-dev zlib1g-dev python3-docutils gettext texinfo help2man
 
-    - name: Clone padavan-ng source
-      run: |
-        git clone --depth=1 https://github.com/hanwckf/rt-n56u.git padavan
-        cd padavan/toolchain-mipsel
-        ./dl_toolchain.sh
+      - name: Clone padavan-ng source
+        run: |
+          git clone --depth=1 https://github.com/hanwckf/rt-n56u.git padavan
+          cd padavan/toolchain-mipsel
+          ./dl_toolchain.sh
 
-    - name: Customize config
-      run: |
-        cd padavan/trunk
-        fakeroot ./clear_tree.sh
-        cp -rf configs/templates/config.rt-n56u .config
+      - name: Customize config
+        run: |
+          cd padavan/trunk
+          fakeroot ./clear_tree.sh
+          cp -rf configs/templates/config.RT-N56U .config
 
-        # Disable unnecessary features for performance
-        sed -i '/CONFIG_FIRMWARE_INCLUDE_/d' .config
-        echo CONFIG_FIRMWARE_INCLUDE_HTTPS=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_IPV6=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_TUN=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_VLANS=n >> .config
-
-        # Enable only essential features
-        echo CONFIG_FIRMWARE_INCLUDE_SAMBA=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_SMBD=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_MINIDLNA=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_UPNP=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_CPUINFO=y >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_RAMINFO=y >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_HTTPS=n >> .config
-        echo CONFIG_FIRMWARE_INCLUDE_WEBMON=y >> .config
-
-    - name: Build firmware
-      run: |
-        cd padavan/toolchain-mipsel
-        export PATH=$(pwd)/bin:$PATH
-        cd ../trunk
-        make -j$(nproc)
-
-    - name: Upload firmware
-      uses: actions/upload-artifact@v3
-      with:
-        name: firmware
-        path: padavan/trunk/images/*.trx
-
-  jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      # ... আগের স্টেপগুলো
       - name: Build firmware
         run: |
           cd padavan/trunk
